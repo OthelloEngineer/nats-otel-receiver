@@ -1,0 +1,361 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "transparent": true,
+      "options": {
+        "content": "<div style=\"display: flex; justify-content: space-between; align-items: center; background: #181b1f; padding: 6px 14px; border-radius: 6px; border: 1px solid #2b303c;\">\n  <div style=\"display: flex; gap: 8px; align-items: center; font-size: 13px;\">\n    <span style=\"color: #8e94a0; font-weight: 600; margin-right: 6px;\">Suite Navigator:</span>\n    <a href=\"/d/nats-otel-overview\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">1. Overview</a>\n    <a href=\"/d/nats-broker-metrics\" style=\"background: #3274D9; color: #ffffff; padding: 4px 10px; border-radius: 4px; font-weight: bold; text-decoration: none;\">● 2. Broker Metrics (Active)</a>\n    <a href=\"/d/nats-wiretap-traces\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">3. Wiretap Traces</a>\n    <a href=\"/d/nats-logs-and-events\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">4. Logs & Events</a>\n    <a href=\"/d/nats-ping-pong-service\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">5. Ping-Pong App</a>\n  </div>\n  <div>\n    <a href=\"/d/nats-wiretap-traces\" style=\"background: #3274D9; color: #ffffff; padding: 5px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;\">Next: Wiretap Traces ➔</a>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 2 },
+      "id": 1,
+      "title": "NATS Server Health & Vital Indicators",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 50 },
+              { "color": "red", "value": 100 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 3 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_server_connections or nats_nats_server_connections or vector(0))",
+          "legendFormat": "Active Connections",
+          "refId": "A"
+        }
+      ],
+      "title": "Active Client Connections",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "red", "value": 500000000 }
+            ]
+          },
+          "unit": "bytes"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 3 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_server_memory_bytes or nats_server_memory or nats_nats_server_memory_bytes or vector(0))",
+          "legendFormat": "Memory Used",
+          "refId": "A"
+        }
+      ],
+      "title": "Server Memory Usage",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "red", "value": 90 }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 3 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_server_cpu or nats_nats_server_cpu or vector(0))",
+          "legendFormat": "CPU Load",
+          "refId": "A"
+        }
+      ],
+      "title": "Server CPU Load",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 3 },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_server_slow_consumers or nats_nats_server_slow_consumers or vector(0))",
+          "legendFormat": "Slow Consumers",
+          "refId": "A"
+        }
+      ],
+      "title": "Slow Consumers Detected",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 6,
+      "title": "Network Traffic & Throughput Volumes",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineInterpolation": "smooth", "lineWidth": 2, "fillOpacity": 15 },
+          "unit": "Bps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 7,
+      "options": { "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "rate(nats_server_in_bytes_total[1m]) or rate(nats_nats_server_in_bytes_total[1m])",
+          "legendFormat": "Inbound Bytes/s",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "rate(nats_server_out_bytes_total[1m]) or rate(nats_nats_server_out_bytes_total[1m])",
+          "legendFormat": "Outbound Bytes/s",
+          "refId": "B"
+        }
+      ],
+      "title": "Network Data Rates (Bytes/sec)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "lineInterpolation": "smooth", "lineWidth": 2, "fillOpacity": 15 },
+          "unit": "msgs"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 8,
+      "options": { "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(nats_messaging_client_sent_messages_total[1m])) or sum(rate(messaging_client_sent_messages_total[1m]))",
+          "legendFormat": "Messages Sent/s",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(nats_messaging_client_consumed_messages_total[1m])) or sum(rate(messaging_client_consumed_messages_total[1m]))",
+          "legendFormat": "Messages Consumed/s",
+          "refId": "B"
+        }
+      ],
+      "title": "Server Message Throughput (msgs/sec)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
+      "id": 9,
+      "title": "NATS JetStream Engine & Persistence Storage",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 17 },
+      "id": 10,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_jetstream_streams or nats_nats_jetstream_streams or vector(0))",
+          "legendFormat": "Streams",
+          "refId": "A"
+        }
+      ],
+      "title": "JetStream Streams",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "teal", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 17 },
+      "id": 11,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_jetstream_consumers or nats_nats_jetstream_consumers or vector(0))",
+          "legendFormat": "Consumers",
+          "refId": "A"
+        }
+      ],
+      "title": "JetStream Consumers",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 17 },
+      "id": 12,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_jetstream_messages or nats_nats_jetstream_messages or vector(0))",
+          "legendFormat": "Messages",
+          "refId": "A"
+        }
+      ],
+      "title": "Stored Messages",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] },
+          "unit": "bytes"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 17 },
+      "id": 13,
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "max(nats_jetstream_bytes or nats_nats_jetstream_bytes or vector(0))",
+          "legendFormat": "Storage Bytes",
+          "refId": "A"
+        }
+      ],
+      "title": "Storage Bytes",
+      "type": "stat"
+    }
+  ],
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "tags": ["nats", "opentelemetry", "metrics", "broker", "jetstream"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "browser",
+  "title": "NATS OpenTelemetry: Broker & Infrastructure Metrics",
+  "uid": "nats-broker-metrics",
+  "version": 1
+}

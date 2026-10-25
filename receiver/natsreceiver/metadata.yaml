@@ -1,0 +1,121 @@
+type: nats
+
+status:
+  class: receiver
+  stability:
+    alpha: [metrics, logs, traces]
+  distributions: [contrib]
+  codeowners:
+    active: [nats-otel]
+
+attributes:
+  nats.server.id:
+    description: Unique identifier of the NATS server instance.
+    type: string
+  messaging.system:
+    description: Identifier for the messaging system (nats).
+    type: string
+  messaging.destination.name:
+    description: Destination subject or JetStream stream name.
+    type: string
+  messaging.operation.type:
+    description: Messaging operation type (e.g. publish, receive, process).
+    type: string
+  messaging.operation.name:
+    description: Messaging operation name.
+    type: string
+  nats.event.type:
+    description: JetStream or NATS server event/advisory type.
+    type: string
+  nats.jetstream.stream:
+    description: Name of the JetStream stream.
+    type: string
+  nats.client.id:
+    description: Client connection identifier.
+    type: int
+
+metrics:
+  nats.server.connections:
+    description: Total number of active client connections to NATS server.
+    unit: '{connection}'
+    gauge:
+      value_type: int
+    attributes: [nats.server.id, messaging.system]
+
+  nats.server.slow_consumers:
+    description: Total number of slow consumers detected by NATS server.
+    unit: '{consumer}'
+    gauge:
+      value_type: int
+    attributes: [nats.server.id, messaging.system]
+
+  nats.server.memory:
+    description: Total memory allocated and used by NATS server process in bytes.
+    unit: By
+    gauge:
+      value_type: int
+    attributes: [nats.server.id, messaging.system]
+
+  messaging.client.consumed.messages:
+    description: Total messages received/consumed by the NATS server.
+    unit: '{message}'
+    sum:
+      value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [nats.server.id, messaging.system]
+
+  messaging.client.sent.messages:
+    description: Total messages delivered/sent by the NATS server.
+    unit: '{message}'
+    sum:
+      value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [nats.server.id, messaging.system]
+
+  nats.server.in_bytes:
+    description: Total inbound bytes received by NATS server.
+    unit: By
+    sum:
+      value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [nats.server.id, messaging.system]
+
+  nats.server.out_bytes:
+    description: Total outbound bytes sent by NATS server.
+    unit: By
+    sum:
+      value_type: int
+      monotonic: true
+      aggregation_temporality: cumulative
+    attributes: [nats.server.id, messaging.system]
+
+  nats.jetstream.streams:
+    description: Total JetStream streams currently configured.
+    unit: '{stream}'
+    gauge:
+      value_type: int
+    attributes: [nats.server.id, messaging.system]
+
+  nats.jetstream.consumers:
+    description: Total JetStream consumers currently configured.
+    unit: '{consumer}'
+    gauge:
+      value_type: int
+    attributes: [nats.server.id, messaging.system]
+
+  nats.jetstream.messages:
+    description: Total number of messages stored across all JetStream streams.
+    unit: '{message}'
+    gauge:
+      value_type: int
+    attributes: [nats.server.id, messaging.system]
+
+  nats.jetstream.bytes:
+    description: Total storage bytes consumed across all JetStream streams.
+    unit: By
+    gauge:
+      value_type: int
+    attributes: [nats.server.id, messaging.system]

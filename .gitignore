@@ -1,0 +1,48 @@
+# Binaries and build artifacts
+bin/
+dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test artifacts and coverage
+*.test
+*.out
+*.prof
+coverage.txt
+profile.out
+
+# Go workspace and cache
+.gocache/
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Sensitive credentials, keys, and certificates
+*.creds
+*.nk
+*.pem
+*.key
+*.crt
+*.cert
+
+# Local test outputs and temporary directories
+tmp/
+otel-output/

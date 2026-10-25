@@ -1,0 +1,2 @@
+nats:
+  endpoint: nats://localhost:4222

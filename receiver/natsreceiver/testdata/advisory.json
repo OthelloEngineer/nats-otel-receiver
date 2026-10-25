@@ -1,0 +1,17 @@
+{
+  "type": "io.nats.jetstream.advisory.v1.stream_action",
+  "id": "JSA-99887766",
+  "timestamp": "2026-03-29T12:00:00Z",
+  "stream": "ORDERS",
+  "action": "create",
+  "server": {
+    "name": "nats-server-prod-01",
+    "host": "10.0.0.5",
+    "id": "NC2YTR3U73IUG5X4X7726G74F7X672AOPD4H2W575773B3J7EUS2E6Y2",
+    "cluster": "prod-cluster"
+  },
+  "client": {
+    "id": 1042,
+    "name": "order-service-producer"
+  }
+}

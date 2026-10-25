@@ -1,0 +1,19 @@
+nats:
+  endpoint: nats://nats.production:4222
+  queue_group: "otelcol-nats-cluster"
+  auth:
+    username: "otel-collector"
+    password: "secret-password"
+    token: "auth-token-123"
+  tls:
+    insecure_skip_verify: true
+    server_name_override: "nats.production"
+  monitor:
+    endpoint: "http://nats.production:8222"
+    timeout: 10s
+  monitor_url: "http://nats.production:8222"
+  scrape_interval: 10s
+  tapped_subjects:
+    - "telemetry.>"
+    - "events.>"
+    - "orders.>"

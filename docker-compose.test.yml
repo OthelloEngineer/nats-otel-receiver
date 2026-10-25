@@ -1,0 +1,37 @@
+services:
+  nats:
+    image: nats:alpine
+    command: ["-m", "8222", "-js", "-DV"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  otelcol-nats:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.otelcol
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./deploy/otelcol-nats-config.yaml:/etc/otelcol/config.yaml:ro
+      - otel-output:/tmp/otel-output
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - nats
+
+  test-runner:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.testrunner
+    environment:
+      - NATS_URL=nats://nats:4222
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otelcol-nats:4317
+      - OTEL_OUTPUT_DIR=/tmp/otel-output
+    volumes:
+      - otel-output:/tmp/otel-output
+    depends_on:
+      - otelcol-nats
+
+volumes:
+  otel-output:

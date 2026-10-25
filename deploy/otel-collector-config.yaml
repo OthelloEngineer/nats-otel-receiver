@@ -1,0 +1,37 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 500ms
+    send_batch_size: 1
+
+exporters:
+  debug:
+    verbosity: detailed
+  file/traces:
+    path: /tmp/otel-output/traces.json
+  file/metrics:
+    path: /tmp/otel-output/metrics.json
+  file/logs:
+    path: /tmp/otel-output/logs.json
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file/traces, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file/metrics, debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [file/logs, debug]

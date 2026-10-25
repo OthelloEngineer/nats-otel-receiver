@@ -1,0 +1,12 @@
+{
+  "streams": 12,
+  "consumers": 34,
+  "messages": 500000,
+  "bytes": 524288000,
+  "meta": {
+    "cluster": {
+      "name": "nats-cluster",
+      "leader": "nats-server-prod-01"
+    }
+  }
+}

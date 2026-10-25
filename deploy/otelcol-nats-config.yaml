@@ -1,0 +1,43 @@
+receivers:
+  nats:
+    endpoint: nats://nats:4222
+    monitor_url: http://nats:8222
+    scrape_interval: 1s
+    tapped_subjects:
+      - "telemetry.>"
+      - "events.>"
+      - "orders.>"
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  batch:
+    timeout: 500ms
+    send_batch_size: 1
+
+exporters:
+  debug:
+    verbosity: detailed
+  file/traces:
+    path: /tmp/otel-output/traces.json
+  file/metrics:
+    path: /tmp/otel-output/metrics.json
+  file/logs:
+    path: /tmp/otel-output/logs.json
+
+service:
+  pipelines:
+    metrics:
+      receivers: [nats, otlp]
+      processors: [batch]
+      exporters: [file/metrics, debug]
+    logs:
+      receivers: [nats]
+      processors: [batch]
+      exporters: [file/logs, debug]
+    traces:
+      receivers: [nats, otlp]
+      processors: [batch]
+      exporters: [file/traces, debug]

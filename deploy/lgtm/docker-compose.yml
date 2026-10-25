@@ -1,0 +1,120 @@
+services:
+  nats:
+    image: nats:alpine
+    command: ["-m", "8222", "-js", "-DV"]
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo.yaml:ro
+    ports:
+      - "3200:3200"
+
+  loki:
+    image: grafana/loki:3.0.0
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - ./loki/loki.yaml:/etc/loki/local-config.yaml:ro
+    ports:
+      - "3100:3100"
+
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+      - "--web.enable-remote-write-receiver"
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  otelcol:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otelcol/config.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
+
+  nats-receiver:
+    build:
+      context: ../../
+      dockerfile: deploy/Dockerfile.receiver
+    command:
+      - "--nats=nats://nats:4222"
+      - "--monitor=http://nats:8222"
+      - "--otlp-endpoint=otelcol:4317"
+      - "--interval=2s"
+      - "--tapped-subjects=ping.>,orders.>,telemetry.>"
+    depends_on:
+      - nats
+      - otelcol
+
+  pong-worker-1:
+    build:
+      context: ../../
+      dockerfile: examples/ping-pong/Dockerfile.pong
+    environment:
+      - NATS_URL=nats://nats:4222
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otelcol:4317
+      - WORKER_ID=pong-worker-1
+    depends_on:
+      - nats
+      - otelcol
+
+  pong-worker-2:
+    build:
+      context: ../../
+      dockerfile: examples/ping-pong/Dockerfile.pong
+    environment:
+      - NATS_URL=nats://nats:4222
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otelcol:4317
+      - WORKER_ID=pong-worker-2
+    depends_on:
+      - nats
+      - otelcol
+
+  ping-client:
+    build:
+      context: ../../
+      dockerfile: examples/ping-pong/Dockerfile.ping
+    environment:
+      - NATS_URL=nats://nats:4222
+      - OTEL_EXPORTER_OTLP_ENDPOINT=otelcol:4317
+      - INTERVAL=1s
+    depends_on:
+      - nats
+      - pong-worker-1
+      - pong-worker-2
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    depends_on:
+      - prometheus
+      - tempo
+      - loki

@@ -1,0 +1,3 @@
+nats:
+  endpoint: nats://localhost:4222
+  scrape_interval: -5s

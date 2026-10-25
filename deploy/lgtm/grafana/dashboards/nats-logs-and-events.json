@@ -1,0 +1,222 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "transparent": true,
+      "options": {
+        "content": "<div style=\"display: flex; justify-content: space-between; align-items: center; background: #181b1f; padding: 6px 14px; border-radius: 6px; border: 1px solid #2b303c;\">\n  <div style=\"display: flex; gap: 8px; align-items: center; font-size: 13px;\">\n    <span style=\"color: #8e94a0; font-weight: 600; margin-right: 6px;\">Suite Navigator:</span>\n    <a href=\"/d/nats-otel-overview\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">1. Overview</a>\n    <a href=\"/d/nats-broker-metrics\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">2. Broker Metrics</a>\n    <a href=\"/d/nats-wiretap-traces\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">3. Wiretap Traces</a>\n    <a href=\"/d/nats-logs-and-events\" style=\"background: #3274D9; color: #ffffff; padding: 4px 10px; border-radius: 4px; font-weight: bold; text-decoration: none;\">● 4. Logs & Events (Active)</a>\n    <a href=\"/d/nats-ping-pong-service\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">5. Ping-Pong App</a>\n  </div>\n  <div>\n    <a href=\"/d/nats-ping-pong-service\" style=\"background: #3274D9; color: #ffffff; padding: 5px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;\">Next: Ping-Pong App ➔</a>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 2 },
+      "id": 1,
+      "title": "Log Telemetry & Event Ingestion KPIs",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 3 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({service_name=~\".+\"}[1m]))",
+          "legendFormat": "Total Logs",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs Ingested (Last 1m)",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 3 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({service_name=\"nats-otel-receiver\"} |= \"Wiretapped\" [1m]))",
+          "legendFormat": "Wiretapped",
+          "refId": "A"
+        }
+      ],
+      "title": "Wiretapped Messages Logged",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 3 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({service_name=~\"ping-service|pong-service\"}[1m]))",
+          "legendFormat": "App Logs",
+          "refId": "A"
+        }
+      ],
+      "title": "Application Correlated Logs",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 5,
+      "title": "Log Streams & Correlated Trace Links",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 6,
+      "options": {
+        "enableLogDetails": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=\"nats-otel-receiver\"} |= \"Wiretapped\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Passive Wiretap Message Stream (Click TraceID to jump to Tempo)",
+      "type": "logs"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 7,
+      "options": {
+        "enableLogDetails": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=~\"ping-service|pong-service\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Application Service Logs (Click TraceID to jump to Tempo)",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
+      "id": 8,
+      "title": "Combined Unified System & Activity Stream",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 17 },
+      "id": 9,
+      "options": {
+        "enableLogDetails": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=~\".+\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "All OpenTelemetry Ingested Logs & System Events",
+      "type": "logs"
+    }
+  ],
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "tags": ["nats", "opentelemetry", "logs", "loki", "tempo"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "browser",
+  "title": "NATS OpenTelemetry: System, Advisory & Wiretap Logs",
+  "uid": "nats-logs-and-events",
+  "version": 1
+}

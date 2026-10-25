@@ -1,0 +1,4 @@
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY bin/test-runner /usr/local/bin/test-runner
+ENTRYPOINT ["/usr/local/bin/test-runner"]

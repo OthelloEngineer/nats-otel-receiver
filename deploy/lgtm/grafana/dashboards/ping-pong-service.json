@@ -1,0 +1,348 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "transparent": true,
+      "options": {
+        "content": "<div style=\"display: flex; justify-content: space-between; align-items: center; background: #181b1f; padding: 6px 14px; border-radius: 6px; border: 1px solid #2b303c;\">\n  <div style=\"display: flex; gap: 8px; align-items: center; font-size: 13px;\">\n    <span style=\"color: #8e94a0; font-weight: 600; margin-right: 6px;\">Suite Navigator:</span>\n    <a href=\"/d/nats-otel-overview\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">1. Overview</a>\n    <a href=\"/d/nats-broker-metrics\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">2. Broker Metrics</a>\n    <a href=\"/d/nats-wiretap-traces\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">3. Wiretap Traces</a>\n    <a href=\"/d/nats-logs-and-events\" style=\"background: #22252b; color: #c7d0d9; padding: 4px 10px; border-radius: 4px; text-decoration: none;\">4. Logs & Events</a>\n    <a href=\"/d/nats-ping-pong-service\" style=\"background: #3274D9; color: #ffffff; padding: 4px 10px; border-radius: 4px; font-weight: bold; text-decoration: none;\">● 5. Ping-Pong App (Active)</a>\n  </div>\n  <div>\n    <a href=\"/d/nats-otel-overview\" style=\"background: #3274D9; color: #ffffff; padding: 5px 12px; border-radius: 4px; font-weight: bold; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;\">↺ Return to Overview</a>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "type": "text"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 2 },
+      "id": 1,
+      "title": "Producer & Consumer Messaging Vital Signs",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 3 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(messaging_client_sent_messages_total{messaging_destination_name=\"ping.requests\"}[1m])) or sum(rate(nats_messaging_client_sent_messages_total{messaging_destination_name=\"ping.requests\"}[1m])) or vector(0)",
+          "legendFormat": "Producer (ping-client-1)",
+          "refId": "A"
+        }
+      ],
+      "title": "Producer (ping-client-1) Dispatch Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 3 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(pong_replies_total[1m])) or sum(rate(nats_pong_replies_total[1m])) or vector(0)",
+          "legendFormat": "Consumer Queue Group",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumer Group (pong-workers) Ingestion Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 3 },
+      "id": 4,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (pong_worker_id) (rate({service_name=\"pong-service\"} |= \"Worker\" [1m]))",
+          "legendFormat": "Consumer: {{pong_worker_id}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumer Instance Work Split (Logs)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 0.05 },
+              { "color": "red", "value": 0.1 }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 3 },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "(sum(rate(ping_roundtrip_duration_seconds_sum[1m])) or sum(rate(nats_ping_roundtrip_duration_seconds_sum[1m]))) / (sum(rate(ping_roundtrip_duration_seconds_count[1m])) or sum(rate(nats_ping_roundtrip_duration_seconds_count[1m])))",
+          "legendFormat": "Mean Roundtrip",
+          "refId": "A"
+        }
+      ],
+      "title": "Mean Roundtrip Latency (Producer ↔ Consumer)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 6,
+      "title": "Horizontal Load Balancing Across Consumer Instances",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Measures consumer reply rate per worker instance in the pong-workers queue group using Prometheus SemConv metrics",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "stacking": { "group": "A", "mode": "normal" }
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 7,
+      "options": { "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (pong_worker_id) (rate(pong_replies_total[1m])) or sum by (pong_worker_id) (rate(nats_pong_replies_total[1m]))",
+          "legendFormat": "Consumer Instance: {{pong_worker_id}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumer Load Balancing by Instance ID (Prometheus Metrics)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "LogQL rate metric directly computed from Loki log streams carrying structured metadata service_instance_id and pong_worker_id",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "stacking": { "group": "A", "mode": "normal" }
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 8,
+      "options": { "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (pong_worker_id) (rate({service_name=\"pong-service\"} |= \"Worker\" [1m]))",
+          "legendFormat": "Consumer Log Stream: {{pong_worker_id}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumer Ingestion Rate by Instance ID (Derived from Loki Logs)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
+      "id": 9,
+      "title": "Latency Distribution & Queue Group Share",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 17 },
+      "id": 10,
+      "options": { "tooltip": { "mode": "multi" } },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(ping_roundtrip_duration_seconds_bucket[1m]) or rate(nats_ping_roundtrip_duration_seconds_bucket[1m])))",
+          "legendFormat": "p50 (Median)",
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(ping_roundtrip_duration_seconds_bucket[1m]) or rate(nats_ping_roundtrip_duration_seconds_bucket[1m])))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(ping_roundtrip_duration_seconds_bucket[1m]) or rate(nats_ping_roundtrip_duration_seconds_bucket[1m])))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "title": "Ping-Pong End-to-End Latency Quantiles (Producer ↔ Consumer)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Workload share between consumer replicas derived from structured log metadata",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 10, "x": 14, "y": 17 },
+      "id": 11,
+      "options": {
+        "displayLabels": ["percent"],
+        "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["lastNotNull"], "values": false },
+        "tooltip": { "mode": "single" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (pong_worker_id) (count_over_time({service_name=\"pong-service\"} |= \"Worker\" [5m]))",
+          "legendFormat": "Consumer: {{pong_worker_id}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Consumer Replica Workload Share (5m from Logs)",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+      "id": 12,
+      "title": "Correlated Distributed Traces & Instance Logs",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 26 },
+      "id": 13,
+      "options": {
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{service_name=~\"ping-service|pong-service\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Live Producer & Consumer Instance Logs (Click TraceID to jump to Tempo)",
+      "type": "logs"
+    }
+  ],
+  "refresh": "2s",
+  "schemaVersion": 39,
+  "tags": ["nats", "ping-pong", "tracing", "tempo"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "browser",
+  "title": "Ping-Pong: Distributed Tracing & Flow",
+  "uid": "nats-ping-pong-service",
+  "version": 1
+}
