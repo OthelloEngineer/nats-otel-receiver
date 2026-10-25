@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	"github.com/nats-otel/nats-otel/pkg/carrier"
 	"github.com/nats-otel/nats-otel/pkg/natsotel"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -175,12 +174,6 @@ func main() {
 	}
 	defer nc.Close()
 
-	client, err := natsotel.NewClient(nc)
-	if err != nil {
-		slog.Error("Failed to wrap NATS client with natsotel", "err", err)
-		os.Exit(1)
-	}
-
 	// Initialize JetStream for demo persistence metrics
 	js, err := nc.JetStream()
 	if err == nil {
@@ -197,8 +190,8 @@ func main() {
 		slog.Info("JetStream ORDERS stream initialized successfully")
 	}
 
-	// Subscribe to responses
-	sub, err := client.Subscribe("ping.replies", func(ctx context.Context, msg *nats.Msg) error {
+	// Subscribe to responses using non-obtrusive WrapErrorHandler decorator
+	sub, err := nc.Subscribe("ping.replies", natsotel.WrapErrorHandler(func(ctx context.Context, msg *nats.Msg) error {
 		var pong PongPayload
 		if err := json.Unmarshal(msg.Data, &pong); err != nil {
 			slog.Warn("Failed to decode pong payload", "err", err)
@@ -236,7 +229,7 @@ func main() {
 			"roundtrip_ms", fmt.Sprintf("%.2fms", roundtripSec*1000),
 		)
 		return nil
-	})
+	}))
 	if err != nil {
 		slog.Error("Failed to subscribe to ping.replies", "err", err)
 		os.Exit(1)
@@ -260,12 +253,12 @@ func main() {
 			return
 		case <-ticker.C:
 			currentSeq := atomic.AddInt64(&seq, 1)
-			sendPing(ctx, client, tracer, otelLogger, js, currentSeq, *serviceName)
+			sendPing(ctx, nc, tracer, otelLogger, js, currentSeq, *serviceName)
 		}
 	}
 }
 
-func sendPing(parentCtx context.Context, client *natsotel.Client, tracer trace.Tracer, otelLogger log.Logger, js nats.JetStreamContext, seq int64, serviceName string) {
+func sendPing(parentCtx context.Context, nc *nats.Conn, tracer trace.Tracer, otelLogger log.Logger, js nats.JetStreamContext, seq int64, serviceName string) {
 	ctx, span := tracer.Start(parentCtx, "Ping Transaction",
 		trace.WithSpanKind(trace.SpanKindClient),
 		trace.WithAttributes(
@@ -288,11 +281,8 @@ func sendPing(parentCtx context.Context, client *natsotel.Client, tracer trace.T
 	msg.Header.Set("Nats-Msg-Id", fmt.Sprintf("PING-%d", seq))
 	msg.Reply = "ping.replies"
 
-	// Inject W3C TraceContext into the NATS message header
-	otel.GetTextMapPropagator().Inject(ctx, carrier.HeaderCarrier(msg.Header))
-
-	// Publish via instrumented natsotel client
-	if err := client.PublishMsg(ctx, msg); err != nil {
+	// Publish via idiomatic natsotel.PublishMsg with automatic traceparent injection
+	if err := natsotel.PublishMsg(ctx, nc, msg); err != nil {
 		span.RecordError(err)
 		slog.Error("Failed to publish ping", "seq", seq, "err", err)
 		return
@@ -305,8 +295,7 @@ func sendPing(parentCtx context.Context, client *natsotel.Client, tracer trace.T
 		orderMsg.Data = []byte(orderPayload)
 		orderMsg.Header = make(nats.Header)
 		orderMsg.Header.Set("Nats-Msg-Id", fmt.Sprintf("ORDER-%d", seq))
-		otel.GetTextMapPropagator().Inject(ctx, carrier.HeaderCarrier(orderMsg.Header))
-		_, _ = js.PublishMsg(orderMsg)
+		_, _ = natsotel.PublishJetStream(ctx, js, orderMsg)
 	}
 
 	if otelLogger != nil {

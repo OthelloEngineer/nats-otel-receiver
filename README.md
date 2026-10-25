@@ -46,9 +46,9 @@ A production-ready OpenTelemetry integration for **NATS (Core & JetStream)** eng
 
 ---
 
-## Quickstart: Client Instrumentation (`pkg/natsotel`)
+## Quickstart: Non-Obtrusive Client Instrumentation (`pkg/natsotel`)
 
-Wrap your standard NATS Go connection to automatically inject W3C `traceparent` headers on publish and extract them on consume:
+`natsotel` provides idiomatic Go middleware decorators and publisher helpers that operate directly on your native `*nats.Conn`. It does **not** wrap or obscure your connection struct, ensuring 100% compatibility with any third-party NATS packages:
 
 ```go
 package main
@@ -63,16 +63,18 @@ func main() {
 	nc, _ := nats.Connect(nats.DefaultURL)
 	defer nc.Close()
 
-	client, _ := natsotel.NewClient(nc)
+	ctx := context.Background()
 
-	// Publish with automatic traceparent injection & latency histogram recording
-	_ = client.Publish(context.Background(), "orders.created", []byte(`{"id": 42}`))
+	// 1. Publish: Automatically injects W3C traceparent headers and records OTel SemConv metrics
+	_ = natsotel.Publish(ctx, nc, "orders.created", []byte(`{"id": 42}`))
 
-	// Consume with automatic traceparent extraction and consumer span linking
-	_, _ = client.QueueSubscribe("orders.created", "billing-group", func(ctx context.Context, msg *nats.Msg) error {
-		// ctx contains the active consumer span linked to the publisher's trace
-		return nil
-	})
+	// 2. Subscribe: WrapHandler / WrapQueueHandler extracts traceparent and starts a linked consumer span
+	_, _ = nc.QueueSubscribe("orders.created", "billing-group",
+		natsotel.WrapQueueHandler("billing-group", func(ctx context.Context, msg *nats.Msg) error {
+			// ctx contains the active consumer span linked to the publisher's trace
+			return nil
+		}),
+	)
 }
 ```
 

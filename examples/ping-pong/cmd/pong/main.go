@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	"github.com/nats-otel/nats-otel/pkg/carrier"
 	"github.com/nats-otel/nats-otel/pkg/natsotel"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -175,14 +174,8 @@ func main() {
 	}
 	defer nc.Close()
 
-	client, err := natsotel.NewClient(nc)
-	if err != nil {
-		slog.Error("Failed to wrap NATS client with natsotel", "err", err)
-		os.Exit(1)
-	}
-
-	// QueueSubscribe to load balance across multiple pong worker replicas
-	sub, err := client.QueueSubscribe("ping.requests", "pong-workers", func(ctx context.Context, msg *nats.Msg) error {
+	// QueueSubscribe to load balance across multiple pong worker replicas using WrapQueueHandler
+	sub, err := nc.QueueSubscribe("ping.requests", "pong-workers", natsotel.WrapQueueHandler("pong-workers", func(ctx context.Context, msg *nats.Msg) error {
 		var ping PingPayload
 		if err := json.Unmarshal(msg.Data, &ping); err != nil {
 			slog.Warn("Failed to decode ping payload", "err", err)
@@ -221,10 +214,8 @@ func main() {
 		replyMsg.Header = make(nats.Header)
 		replyMsg.Header.Set("Nats-Msg-Id", fmt.Sprintf("PONG-%d", ping.Seq))
 
-		// Propagate active trace context back to sender
-		otel.GetTextMapPropagator().Inject(ctx, carrier.HeaderCarrier(replyMsg.Header))
-
-		if err := client.PublishMsg(ctx, replyMsg); err != nil {
+		// Propagate active trace context back to sender via natsotel.PublishMsg
+		if err := natsotel.PublishMsg(ctx, nc, replyMsg); err != nil {
 			span.RecordError(err)
 			slog.Error("Failed to send pong reply", "seq", ping.Seq, "err", err)
 			return err
@@ -258,7 +249,7 @@ func main() {
 			"dest", replySubj,
 		)
 		return nil
-	})
+	}))
 	if err != nil {
 		slog.Error("Failed to subscribe with queue group", "err", err)
 		os.Exit(1)
